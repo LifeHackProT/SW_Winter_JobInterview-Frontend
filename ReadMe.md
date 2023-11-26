@@ -8,4 +8,7 @@ Virtual Environment (ex. anaconda)
 # installation
 * <code> pip install streamlit --upgrade </code>
 * <code> pip install steramlit-chat </code> #stream_chat
-* <code> pip install opencv-python streamlit Pillow </code> #open cv 
+* <code> pip install opencv-python streamlit Pillow </code> #open cv
+
+# file to make
+* in directory <code> .streamlit </code> file <code>secrets.toml</code> add <code> OPEN_API_KEY = "Your api key" </code>

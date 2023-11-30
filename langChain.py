@@ -1,6 +1,8 @@
 from langchain.document_loaders import DirectoryLoader
 
-directory = '/content/data'
+
+directory = './DataSet/JobDescription'
+#directory = '/content/data'
 
 
 def load_docs(directory):

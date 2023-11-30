@@ -1,0 +1,11 @@
+key = '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'
+import os
+import openai
+openai.api_key = key
+
+completion = openai.Completion()
+
+#[theme]
+#primaryColor = "#ffb03b"
+#backgroundColor = "#FFFFFF"
+#secondaryBackgroundColo = "#FFFFFF"

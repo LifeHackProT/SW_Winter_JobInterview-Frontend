@@ -12,3 +12,4 @@ Virtual Environment (ex. anaconda)
 
 # file to make
 * in directory <code> .streamlit </code> file <code>secrets.toml</code> add <code> OPEN_API_KEY = "Your api key" </code>
+* in file <code>.env</code> add <code> OPEN_API_KEY = "Your api key" </code> as well.

@@ -1,146 +1,169 @@
-# import cv2
-# import streamlit as st
-# import OpenCVDemoCode
-# import numpy as np
-# from PIL import Image
-# from streamlit_chat import message
-#
-# #OpenAI API call
-# import os
-# import openai
-#
-#
-# # Layout
-# st.set_page_config(layout="wide")
-#
-#
-# def caption(button):
-#     st.session_state['caption'] = button
-#     st.session_state.count += 1
-#     if st.session_state.count == 2:
-#         st.session_state['caption'] = 'caption'  # 버튼 클릭 시 표기
-#         st.session_state.count = 0
-#
-#
-# def record():
-#     st.text_input()
-#
-# # 초기화
-# if 'count' not in st.session_state:  # 버튼 클릭 횟수
-#     st.session_state.count = 0
-# if 'caption' not in st.session_state:  # 버튼 내용
-#     st.session_state['caption'] = 'caption place'
-# if 'past' not in st.session_state:  # 과거 메시지
-#     st.session_state.past = []
-# if 'generated' not in st.session_state:  # 생성된 메시지
-#     st.session_state.generated = []
-#
-#
-# def on_input_change():
-#     user_input = st.session_state.user_input
-#     st.session_state.past.append(user_input)
-#     st.session_state.generated.append("The messages from Bot\nWith new line")
-#
-# def on_btn_click():
-#     del st.session_state.past[:]
-#     del st.session_state.generated[:]
-#
-# # 사이드 바
-# def sidebar():
-#     st.sidebar.title("Chat log")
-#     chat_placeholder = st.sidebar.empty()
-#
-#     # with chat_placeholder.container():
-#     #     for i in range(len(st.session_state['generated'])):
-#     #         message(st.session_state['past'][i], is_user=True, key=f"{i}_user")
-#     #         message(
-#     #             st.session_state['generated'][i]['data'],
-#     #             key=f"{i}",
-#     #             allow_html=True,
-#     #             is_table=True if st.session_state['generated'][i]['type'] == 'table' else False
-#     #         )
-#     #
-#     #     st.button("Clear message", on_click=on_btn_click)
-#     #
-#     # with st.sidebar.container():
-#     #     st.text_input("User Input:", on_change=on_input_change, key="user_input")
-#
-# # 웹캠으로 읽고, 출력
-# # def camera():
-# #     face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'DataSet/haarcascade_frontalface_default.xml')
-# #     cap = cv2.VideoCapture(0)
-# #     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-# #     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 400)
-# #
-# #     while True:
-# #         ret, frame = cap.read()
-# #         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-# #         faces = face_cascade.detectMultiSacle(gray, 1.3, 5)
-# #
-# #         box_size = (100,100)
-# #         cv2.imshow('frame', frame)
-#
-#     # cap.release()
-#     # cv2.destroyAllWindows()
-#
-# def image():
-#     st.image("Dataset/Test.jpg")
-#     cap = cv2.Image.Capture(0)
-#     cap.set(cv2.CAP_PROP_FRAME_WIDTH, 100)
-#     cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 100)
-#
-#
-# def main():
-#     sidebar()
-#     st.title("User interface")
-#     st.text("We use OpenCV and Streamlit for this demo")
-#
-#     st.camera_input(label="User screen", key=None, help=None, on_change=None, args=None, kwargs=None, disabled=False, label_visibility="visible")
-#     #OpenCVDemoCode.camera()
-#     col1, col2 = st.columns([1, 1])  # 비율 col1:col2:col3
-#     with col1:
-#         st.button(label="caption", on_click=caption('clicked'))
-#     with col2:
-#         # st.text(st.session_state['caption'])
-#         st.button(label="record", on_click=' ')
-#
-#
-# if __name__ == '__main__':
-#     main()
-
 import streamlit as st
-import cv2
-
-# 웹캠에서 영상을 받아오는 함수
-def get_video_capture():
-    return cv2.VideoCapture(1)
-
-# 얼굴 감지를 위한 Haarcascade 분류기 로드
-face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + 'haarcascade_frontalface_default.xml')
-
-# Streamlit 앱 시작
-st.title("웹캠으로 얼굴 감지하기")
-
-
-video_capture = get_video_capture()
-
-# 영상 프레임 처리
-while True:
-    # 웹캠에서 프레임 읽어오기
-    ret, frame = video_capture.read()
-
-    # 얼굴 감지
-    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-    faces = face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(30, 30))
-
-    # 감지된 얼굴에 사각형 그리기
-    for (x, y, w, h) in faces:
-        cv2.rectangle(frame, (x, y), (x+w, y+h), (0, 255, 0), 2)
-
-    # Streamlit에 영상 출력
-    st.image(frame, channels="BGR")
+from openai import OpenAI
+# speech to text
+from bokeh.models import CustomJS, Button, Toggle
+from streamlit_bokeh_events import streamlit_bokeh_events
+# video
+from streamlit_webrtc import WebRtcMode, webrtc_streamer
+from streamlit_float import *
+# AI
+from face_AI import faceanima
+# chat LLM
+from qa_vectordb import reply
 
 
-# 웹캠 해제
-video_capture.release()
+# 레이아웃
+st.set_page_config(layout="wide")
+# 초기화
+if 'caption' not in st.session_state:  # 버튼 내용
+    st.session_state.caption = ""
 
+# Set OpenAI API key from Streamlit secrets
+client = OpenAI(api_key=st.secrets["OPENAI_API_KEY"])
+
+# Set a default model
+if "openai_model" not in st.session_state:
+    st.session_state["openai_model"] = "gpt-3.5-turbo"
+
+# AI response
+question = "Hello, this is AI mock Interview."
+
+# Initialize chat history
+if 'messages' not in st.session_state:
+    st.session_state.messages = [{"role": "assistant", "content": question}]
+
+
+# 자막 버튼
+def caption():
+    col_buttonl, col_buttonr = st.columns([1, 1])  # 비율 col_buttonl : col_buttonr
+    with col_buttonl:
+        if st.button('caption'):
+            with st.chat_message("assistant"):
+                st.markdown(st.session_state.messages[-1].get("content"))
+            with col_buttonr:
+                st.button('cancel')
+
+
+# TTS from AI
+def tts():
+    tts_button = Button(label="AI Answer", width=100)
+    tts_button.js_on_event("button_click", CustomJS(code=f"""
+                var u = new SpeechSynthesisUtterance();
+                u.text = "{st.session_state.messages[-1].get("content")}";
+                u.lang = 'en-US';
+
+                speechSynthesis.speak(u);
+                """))
+    st.bokeh_chart(tts_button)
+
+
+# speech to text
+def record():
+    # speech to text
+    stt_button = Button(label="Speak", width=100, align='center')
+
+    stt_button.js_on_event("button_click", CustomJS(code="""
+        
+        var recognition = new webkitSpeechRecognition();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        
+        recognition.onresult = function(e) {
+            var value = "";
+            for (var i = e.resultIndex; i < e.results.length; ++i) {
+                if (e.results[i].isFinal) {
+                    value += e.results[i][0].transcript;
+                }
+            }
+            if (value != "") {
+                document.dispatchEvent(new CustomEvent("GET_TEXT", {detail: value}));
+            }
+        }
+        recognition.start();
+        """))
+
+    result = streamlit_bokeh_events(
+        stt_button,
+        events="GET_TEXT",
+        key="listen",
+        refresh_on_update=False,
+        override_height=40,
+        debounce_time=0)
+
+    if result:
+        if "GET_TEXT" in result:
+            userinput = result.get("GET_TEXT")
+            with st.chat_message("user"):
+                st.write(userinput)
+            return userinput
+
+
+# 사이드 바
+def chatlog():
+    st.sidebar.title("Chat Log")
+    # Display chat history
+    for messages in st.session_state.messages:
+        with st.sidebar.chat_message(messages["role"]):
+            st.markdown(messages["content"])
+    # recording & AI speaking
+    rec_col1, rec_col2 = st.columns([1, 1])  # 비율 rec_col1 : rec_rol2
+    with rec_col1:
+        tts()  # AI tts
+    with rec_col2:
+        userinput = record()  # user recording
+    # Chat Input & AI question
+    query = st.chat_input("Type in your answer")
+    if userinput is not None:
+        response(userinput)
+    if query:
+        response(query)
+    userinput = None
+
+
+
+# AI chat response
+def response(query):
+    st.session_state.messages.append({"role": "user", "content": query})  # Add to chat history
+    with st.sidebar.chat_message("user"):
+        st.markdown(query)  # Display user message
+    with st.sidebar.chat_message("assistant"):  # Display assistant response in chat message container
+        message_placeholder = st.empty()
+        full_response = reply(query)  # LLM
+        message_placeholder.markdown(full_response)
+        st.session_state.messages.append({"role": "assistant", "content": full_response})
+
+
+# AI 화면
+def aivideo():
+    faceanima()
+
+
+# 사용자 화면
+def uservideo():
+    webrtc_ctx = webrtc_streamer(
+        key="object-detection",
+        mode=WebRtcMode.SENDRECV,
+        media_stream_constraints={"video": True, "audio": False},
+        async_processing=True,
+    )
+
+
+# 메인
+def main():
+    # 제목 및 내용
+    st.title("AI mock interview")
+    # 화면
+    col1, col2, col3 = st.columns([0.2, 1, 0.2])  # 비율 col1:col2:col3
+    with col2:
+        # AI 화면
+        aivideo()
+        # 사용자 화면
+        uservideo()
+    # 사이드 바
+    chatlog()
+    # AI 자막
+    caption()
+
+
+if __name__ == '__main__':
+    main()

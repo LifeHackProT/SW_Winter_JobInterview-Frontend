@@ -1,0 +1,111 @@
+
+* {
+  box-sizing: border-box;
+}
+:root {
+  --height: 50vh;
+  --width: 50vh;
+  --feature: 7vmin;
+  --stroke: #1a1a1a;
+  --white: #fafafa;
+  --red: #f2330d;
+  --bg: white;
+}
+.stApp > header{
+  background-color: transparent;
+}
+.stApp {
+  min-height: 100vh;
+  display: block;
+  place-items: center;
+
+}
+.face-container{
+  fill: #FBFDFE;
+  stroke-width: 1px;
+  stroke: #000;
+  filter: drop-shadow(0px 4px 4px rgba(0, 0, 0, 0.25));
+}
+.face {
+  height: var(--height);
+  position: relative;
+  width: var(--width);
+  background: var(--bg);
+  border-radius: 50%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+  transform: translate(calc(var(--x, 0) * 1px), calc(var(--y, 0) * 1px));
+}
+.face__eyes {
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  height: var(--feature);
+  transform: translate(calc(var(--x, 0) * 1px), calc(var(--y, 0) * 1px));
+}
+.face__mouth {
+  height: var(--feature);
+  width: calc(var(--feature) * 1.5);
+  background: var(--stroke);
+  border-radius: 50%;
+  position: absolute;
+  left: 50%;
+  bottom: 45%;
+  transform: translateX(-50%) translate(calc(var(--x, 0) * 1px), calc(var(--y, 0) * 1px));
+  -webkit-clip-path: inset(50% 0 0 0);
+          clip-path: inset(50% 0 0 0);
+  overflow: hidden;
+  /*animation-talking*/
+  animation-name: talking;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+}
+/*animation-talking*/
+@keyframes talking {
+  from {
+    height: 20%;
+  }
+  50% {
+    height: 10%;
+  }
+  to {
+    height: 20%;
+  }
+}
+.face__mouth:after {
+  content: '';
+  position: absolute;
+  height: 50%;
+  width: 50%;
+  background: var(--red);
+  top: 75%;
+  left: 60%;
+  border-radius: 50%;
+}
+.eye {
+  position: absolute;
+  height: var(--feature);
+  width: var(--feature);
+  background: var(--stroke);
+  top: calc(var(--height)/3);
+  border-radius: 50%;
+  overflow: hidden;
+}
+.eye:after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 20%;
+  background: var(--white);
+  border-radius: 50%;
+  height: 20%;
+  width: 20%;
+}
+.eye--left {
+  left: 0;
+}
+.eye--right {
+  right: 0;
+}
